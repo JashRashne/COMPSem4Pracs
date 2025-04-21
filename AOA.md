@@ -419,98 +419,54 @@ class MST {
 ```java
 import java.util.*;
 
-public class SimpleKruskalMST {
-    // Simple Edge class
-    static class Edge implements Comparable<Edge> {
-        int src, dest, weight;
-        
-        public Edge(int src, int dest, int weight) {
-            this.src = src;
-            this.dest = dest;
-            this.weight = weight;
-        }
-        
-        @Override
-        public int compareTo(Edge other) {
-            return this.weight - other.weight;
-        }
-    }
-    
-    // Find operation with path compression
-    static int find(int[] parent, int i) {
-        if (parent[i] != i)
-            parent[i] = find(parent, parent[i]);
-        return parent[i];
-    }
-    
-    // Union operation
-    static void union(int[] parent, int x, int y) {
-        parent[find(parent, x)] = find(parent, y);
-    }
-    
+public class SimpleKruskal {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        
+        Scanner sc = new Scanner(System.in);
+
+        // Step 1: Take input
         System.out.print("Enter number of vertices: ");
-        int V = scanner.nextInt();
-        
-        // Input adjacency matrix
-        int[][] matrix = new int[V][V];
-        System.out.println("Enter the adjacency matrix (use 0 for no edge):");
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-                matrix[i][j] = scanner.nextInt();
-            }
+        int V = sc.nextInt();
+
+        System.out.print("Enter number of edges: ");
+        int E = sc.nextInt();
+
+        int[][] edges = new int[E][3]; // {u, v, weight}
+
+        System.out.println("Enter edges (u v weight):");
+        for (int i = 0; i < E; i++) {
+            edges[i][0] = sc.nextInt(); // u
+            edges[i][1] = sc.nextInt(); // v
+            edges[i][2] = sc.nextInt(); // weight
         }
-        
-        // Create edge list from matrix
-        ArrayList<Edge> edges = new ArrayList<>();
-        for (int i = 0; i < V; i++) {
-            for (int j = i+1; j < V; j++) {
-                if (matrix[i][j] != 0) {
-                    edges.add(new Edge(i, j, matrix[i][j]));
-                }
-            }
-        }
-        
-        // Sort edges by weight
-        Collections.sort(edges);
-        
-        // Create parent array for union-find
+
+        // Step 2: Sort edges by weight
+        Arrays.sort(edges, Comparator.comparingInt(a -> a[2]));
+
+        // Step 3: Initialize parent array for cycle detection
         int[] parent = new int[V];
-        for (int i = 0; i < V; i++) {
-            parent[i] = i;
-        }
-        
-        ArrayList<Edge> mst = new ArrayList<>();
-        int totalWeight = 0;
-        
-        // Process edges in sorted order
-        for (Edge edge : edges) {
-            int rootSrc = find(parent, edge.src);
-            int rootDest = find(parent, edge.dest);
-            
-            // If including this edge doesn't form a cycle
-            if (rootSrc != rootDest) {
-                mst.add(edge);
-                totalWeight += edge.weight;
-                union(parent, rootSrc, rootDest);
-                
-                // Stop if we have V-1 edges
-                if (mst.size() == V - 1) {
-                    break;
-                }
+        for (int i = 0; i < V; i++) parent[i] = i;
+
+        // Step 4: Kruskal's Algorithm
+        int minCost = 0;
+        System.out.println("\nEdges in MST:");
+        for (int i = 0; i < E; i++) {
+            int u = edges[i][0];
+            int v = edges[i][1];
+            int wt = edges[i][2];
+
+            // Find parent
+            while (parent[u] != u) u = parent[u];
+            while (parent[v] != v) v = parent[v];
+
+            // If adding edge doesn't form a cycle
+            if (u != v) {
+                System.out.println(edges[i][0] + " - " + edges[i][1] + " : " + wt);
+                minCost += wt;
+                parent[u] = v; // Union
             }
         }
-        
-        // Print results
-        System.out.println("Edges in the Minimum Spanning Tree:");
-        for (Edge edge : mst) {
-            System.out.println(edge.src + " -- " + edge.dest + " == " + edge.weight);
-        }
-        System.out.println("Minimum Cost Spanning Tree: " + totalWeight);
-        
-        scanner.close();
+
+        System.out.println("\nMinimum Cost: " + minCost);
     }
 }
 ```
