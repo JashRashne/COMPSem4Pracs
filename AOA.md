@@ -234,120 +234,59 @@ public class QuickSort {
 ### Q4) Implement Merge Sort (Print number of calls to merge sort procedure)
 
 ```java
-import java.util.Scanner;
+import java.util.*;
 
 public class MergeSort {
-    // Counter for the number of calls to merge sort procedure
     private static int callCount = 0;
-    
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        
-        // Get array size from user
-        System.out.print("Enter the number of elements: ");
-        int n = scanner.nextInt();
-        
-        // Create array of specified size
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number of elements: ");
+        int n = sc.nextInt();
         int[] arr = new int[n];
-        
-        // Get array elements from user
+
         System.out.println("Enter the elements:");
-        for (int i = 0; i < n; i++) {
-            arr[i] = scanner.nextInt();
-        }
-        
-        System.out.println("\nOriginal array:");
-        printArray(arr);
-        
-        // Reset the call counter before sorting
+        for (int i = 0; i < n; i++) arr[i] = sc.nextInt();
+
+        System.out.println("\nOriginal array: " + Arrays.toString(arr));
+
         callCount = 0;
-        
-        // Perform merge sort
         mergeSort(arr, 0, n - 1);
-        
-        System.out.println("\nSorted array:");
-        printArray(arr);
-        
-        System.out.println("\nNumber of calls to merge sort procedure: " + callCount);
-        
-        scanner.close();
+
+        System.out.println("Sorted array: " + Arrays.toString(arr));
+        System.out.println("Number of calls to mergeSort: " + callCount);
+
+        sc.close();
     }
-    
-    // Merge sort implementation
+
     static void mergeSort(int[] arr, int left, int right) {
-        // Increment call counter
         callCount++;
-        
-        if (left < right) {
-            // Find the middle point
-            int mid = left + (right - left) / 2;
-            
-            // Sort first and second halves
-            mergeSort(arr, left, mid);
-            mergeSort(arr, mid + 1, right);
-            
-            // Merge the sorted halves
-            merge(arr, left, mid, right);
-        }
+        if (left >= right) return;
+
+        int mid = (left + right) / 2;
+
+        mergeSort(arr, left, mid);
+        mergeSort(arr, mid + 1, right);
+
+        merge(arr, left, mid, right);
     }
-    
-    // Merge two subarrays of arr[]
+
     static void merge(int[] arr, int left, int mid, int right) {
-        // Find sizes of two subarrays to be merged
-        int n1 = mid - left + 1;
-        int n2 = right - mid;
-        
-        // Create temp arrays
-        int[] L = new int[n1];
-        int[] R = new int[n2];
-        
-        // Copy data to temp arrays
-        for (int i = 0; i < n1; ++i)
-            L[i] = arr[left + i];
-        for (int j = 0; j < n2; ++j)
-            R[j] = arr[mid + 1 + j];
-        
-        // Merge the temp arrays
-        
-        // Initial indexes of first and second subarrays
-        int i = 0, j = 0;
-        
-        // Initial index of merged subarray
-        int k = left;
-        while (i < n1 && j < n2) {
-            if (L[i] <= R[j]) {
-                arr[k] = L[i];
-                i++;
-            } else {
-                arr[k] = R[j];
-                j++;
-            }
-            k++;
+        int[] merged = new int[right - left + 1];
+        int i = left, j = mid + 1, k = 0;
+
+        while (i <= mid && j <= right) {
+            merged[k++] = (arr[i] <= arr[j]) ? arr[i++] : arr[j++];
         }
-        
-        // Copy remaining elements of L[] if any
-        while (i < n1) {
-            arr[k] = L[i];
-            i++;
-            k++;
-        }
-        
-        // Copy remaining elements of R[] if any
-        while (j < n2) {
-            arr[k] = R[j];
-            j++;
-            k++;
-        }
-    }
-    
-    // Utility method to print an array
-    static void printArray(int[] arr) {
-        for (int value : arr) {
-            System.out.print(value + " ");
-        }
-        System.out.println();
+        while (i <= mid) merged[k++] = arr[i++];
+        while (j <= right) merged[k++] = arr[j++];
+
+        // Copy merged result back to original array
+        for (i = 0; i < merged.length; i++) arr[left + i] = merged[i];
     }
 }
+
 ```
 
 ### Q5) Implement minimum spanning tree using Prim’s algorithm. (Print minimum cost and edges in MST)
@@ -699,7 +638,7 @@ public class KnapsackProblem {
 }
 ```
 
-### Q8) Implement 0/1 Knapsack algorithm (Print length, total profit earned and matrix along with arrows)
+### Q8) Implement LCS algorithm
 
 ```java
 import java.util.Scanner;
@@ -833,13 +772,238 @@ public class LongestCommonSubsequence {
 ### Q9) Implement the Single Source Shortest Path algorithm using Dijkstra’s Algorithm. Print the final distance vector (D) and predecessor vector (π). Also, display the shortest path from the source to every other vertex.
 
 ```java
+import java.util.*;
+ class Main{
+    static int n;
+    
+    static void printpath(int[] pi, int i){
+        if(pi[i]==-1){
+            System.out.print(i);
+            return;
+        }
+        printpath(pi,pi[i]);
+        System.out.print(" ->"+i);
+    }
+    
+    static int minDistance(int[] mindist, boolean[] visited){
+        int min= Integer.MAX_VALUE;
+        int min_index= -1;
+        for(int i=0; i<n; i++){
+            if(!visited[i] && mindist[i]<min){
+                min= mindist[i];
+                min_index= i;
+            }
+        }
+        return min_index;
+    }
+    
+    static void dijkstra(int[][] graph, int source, int n){
+       
+       int[] mindist= new int[n];
+       int[] pi= new int[n];
+       boolean[] visited= new boolean[n];
+       
+       Arrays.fill(mindist, Integer.MAX_VALUE);
+       Arrays.fill(pi, -1);
+       Arrays.fill(visited, false);
+       
+       mindist[source]=0;
+      
+      for(int count=0; count<n-1; count++){
+          int u= minDistance(mindist,visited);
+          visited[u]= true;
+          
+          for(int v=0; v<n; v++){
+              if(!visited[v] && graph[u][v]!=0 && mindist[u]+graph[u][v]< mindist[v]){
+                  mindist[v]=  mindist[u]+graph[u][v];
+                  pi[v]= u;
+              }
+          }
+      } 
+      
+      System.out.println("D vector: ");
+      for(int i=0; i<n; i++){
+          if(mindist[i]== Integer.MAX_VALUE){
+              System.out.print("INF"+ " ");
+          }else{
+              System.out.print(mindist[i]+ " ");
+          }
+      }
+      
+      System.out.println();
+      System.out.println("Pi vector: ");
+      for(int i=0; i<n; i++){
+          
+          System.out.print(pi[i]+ " ");
+          
+          }
+      System.out.println();
+      System.out.println("printing paths:");
+      
+      for(int i=0; i<n; i++){
+          System.out.println();
+          if(mindist[i]==Integer.MAX_VALUE){
+              System.out.println("path to "+i+": no path");
+          }
+          else{
+              System.out.println("path to "+i+": ");
+              printpath(pi,i);
+          }
+      }
+      
+      
+    }
 
+ 
+ public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of vertices: ");
+         n = sc.nextInt();
+        int[][] graph = new int[n][n];
+
+        System.out.println("Enter the adjacency matrix:");
+        for (int i = 0; i < n; i++)
+            for (int j = 0; j < n; j++)
+                graph[i][j] = sc.nextInt();
+
+        System.out.print("Enter source vertex: ");
+        int source = sc.nextInt();
+
+        dijkstra(graph, source, n);
+    }
+}
 ```
 
 ### Q10) Implement the All-Pairs Shortest Path algorithm using Floyd-Warshall. Print the final distance matrix (D) and predecessor matrix (π). Also, display the shortest path between every pair of vertices
 
 ```java
+import java.util.*;
+class Main{
+    
+    static int INF= Integer.MAX_VALUE;
+    
+    static void floydd(int[][] graph, int n){
+        int[][] mindist= new int[n][n];
+        int[][] pi= new int[n][n];
+        
+        for(int i=0; i<n; i++){
+            for(int j=0; j<n; j++){
+                mindist[i][j]= graph[i][j];
+                if(i==j || mindist[i][j]==INF){
+                    pi[i][j]= -1;
+                }
+                else{
+                    pi[i][j]= i;
+                }
+            }
+        }
+        
+        
+        for(int k=0; k<n; k++){
+            for(int i=0; i<n; i++){
+                for(int j=0; j<n; j++){
+                    if(mindist[i][k]!=INF && mindist[k][j]!=INF && mindist[i][k]+mindist[k][j]< mindist[i][j]){
+                        mindist[i][j]= mindist[i][k]+mindist[k][j];
+                        pi[i][j]= pi[k][j];
+                    }
+                }
+            }
+        }
+        
+        
+        printSolution(mindist,n,pi);
+        printAllPaths(pi,n);
+        
+    }
+    
+    
+    static void printSolution(int[][] mindist, int n, int[][] pi){
+        
+        // pehele normal mindist print karne ka......
+        
+        System.out.println("minimum distance matrix: ");
+        for(int i=0; i<n; i++){
+            for(int j=0; j<n; j++){
+                if(mindist[i][j]==INF){
+                    System.out.print("INF"+ "  ");
+                }
+                else{
+                    System.out.print(mindist[i][j]+ "   ");
+                }
+            }
+            System.out.println();
+        }
+        
+        System.out.println("pi matrix: ");
+        for(int i=0; i<n; i++){
+            for(int j=0; j<n; j++){
+                if(pi[i][j]== -1){
+                    System.out.print("NIl"+ "  ");
+                }
+                else{
+                    System.out.print(pi[i][j]+ "    ");
+                }
+            }
+            System.out.println();
+        }
+    }
+    
+    static void printpath(int[][] pi, int i, int j){
+        if(i==j){
+            System.out.print(i+ "    ");
+        }else if(pi[i][j]==-1){
+            System.out.print("No path");
+        }else{
+            printpath(pi, i, pi[i][j]);
+            System.out.print(j+ "    ");
+        }
+       
+    }
+    
+    static void printAllPaths(int[][] pi, int n){
+        
+        for(int i=0; i<n; i++){
+            for(int j=0; j<n; j++){
+                System.out.println();
+                System.out.print("path from "+i+ "to " +j+ ": ");
+                if(i!=j && pi[i][j]==-1){
+                    System.out.print("no path");
+                    System.out.println();
+                }
+                else{
+                    printpath(pi,i,j);
+                }
+            }
+        }
+    }
+    
+    
+    
+    public static void main(String[] args){
+        Scanner sc= new Scanner(System.in);
+        
+         System.out.print("Enter number of vertices: ");
+        int n = sc.nextInt();
 
+        int[][] graph = new int[n][n];
+        System.out.println("Enter the adjacency matrix:");
+        System.out.println("Use -1 to represent NO EDGE (infinity)");
+        
+        for(int i=0; i<n; i++){
+            for(int j=0; j<n; j++){
+                int input=sc.nextInt();
+                if(input==-1 && i!=j){
+                    graph[i][j]= INF;
+                }
+                else{
+                    graph[i][j]=input;
+                }
+            }
+        }
+        
+        floydd(graph,n);
+    }
+}
 ```
 
 ### Q11) Implement NQueen Probem (Print output in 1D and 2D and print total number of function calls)
